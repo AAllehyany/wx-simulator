@@ -22,8 +22,13 @@ func main() {
 
 	game := wxcore.NewGame()
 
-	wxcore.CardToEntityParser(cards, &game)
+	player1 := wxcore.CreatePlayerEntity(&game)
+	player2 := wxcore.CreatePlayerEntity(&game)
 
-	wxcore.GetAllCards(&game)
+	wxcore.CardToEntityParser(cards, &game, player1)
+	wxcore.CardToEntityParser(cards, &game, player2)
+
+	cc := wxcore.GetAllCards(&game)
+	fmt.Printf("%+v", cc)
 
 }

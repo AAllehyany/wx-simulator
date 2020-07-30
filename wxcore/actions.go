@@ -9,6 +9,7 @@ type ActionType int
 const (
 	Play ActionType = iota
 	Move
+	EndTurn
 )
 
 // Action describes how to modify the gamestate

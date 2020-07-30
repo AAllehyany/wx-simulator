@@ -1,8 +1,6 @@
 package wxcore
 
 import (
-	"fmt"
-
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -41,14 +39,32 @@ func RemoveEntity(gameState *GameState, entityId uuid.UUID) {
 	delete(gameState.Entities, entityId)
 }
 
-func GetAllCards(gameState *GameState) []*Entity {
-	var cards []*Entity
+func GetAllCards(gameState *GameState) []Entity {
+	var cards []Entity
 
 	for _, element := range gameState.Entities {
 		if element.Type == Card {
-			fmt.Printf("%+v", element)
+			//fmt.Printf("%+v", element)
+			cards = append(cards, element)
 		}
 	}
 
 	return cards
+}
+
+func CreatePlayerEntity(gameState *GameState) uuid.UUID {
+	p := NewEntity(Player, uuid.NewV4())
+	gameState.Entities[p.ID] = p
+	return p.ID
+}
+
+func ApplyAction(action Action, game *GameState) {
+	if entity, ok := game.Entities[action.TargetEntity]; ok {
+
+		if entity.Owner != action.PlayerId {
+			return
+		}
+
+		entity.Tags[action.Tag] = action.Value
+	}
 }

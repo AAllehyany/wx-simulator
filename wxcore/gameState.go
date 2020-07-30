@@ -1,48 +1,54 @@
 package wxcore
 
 import (
+	"fmt"
+
 	uuid "github.com/satori/go.uuid"
 )
 
 // GameState represents the current state of the game.
 // It is responsible of keeping track of creation, modification and updating entities.
 type GameState struct {
-	Entities map[uuid.UUID]Entity
+	Entities  map[uuid.UUID]Entity
+	MainDecks map[uuid.UUID]CardCollection
+	Hands     map[uuid.UUID]CardCollection
 }
 
 func NewGame() GameState {
 	return GameState{
-		Entities: make(map[uuid.UUID]Entity),
+		Entities:  make(map[uuid.UUID]Entity),
+		MainDecks: make(map[uuid.UUID]CardCollection),
+		Hands:     make(map[uuid.UUID]CardCollection),
 	}
 }
 
 // CreateEntity creats a new entity and adds it to the game.
-func CreateEntity(gameState *GameState, t EntityType, owner uuid.UUID) uuid.UUID {
+func (g *GameState) CreateEntity(t EntityType, owner uuid.UUID) uuid.UUID {
 
 	entity := NewEntity(t, owner)
 
-	gameState.Entities[entity.ID] = entity
+	g.Entities[entity.ID] = entity
 
 	return entity.ID
 }
 
 // UpdateEntity updates an entity tag with the provided value, or adds a new tag with the given value
-func UpdateEntity(gameState *GameState, entityId uuid.UUID, tag EntityTag, value int) {
+func (g *GameState) UpdateEntity(entityId uuid.UUID, tag EntityTag, value int) {
 
-	if e, ok := gameState.Entities[entityId]; ok {
+	if e, ok := g.Entities[entityId]; ok {
 		e.Tags[tag] = value
 	}
 }
 
 // RemoveEntity removes an entity from the game if it exists
-func RemoveEntity(gameState *GameState, entityId uuid.UUID) {
-	delete(gameState.Entities, entityId)
+func (g *GameState) RemoveEntity(entityId uuid.UUID) {
+	delete(g.Entities, entityId)
 }
 
-func GetAllCards(gameState *GameState) []Entity {
+func (g *GameState) GetAllCards() []Entity {
 	var cards []Entity
 
-	for _, element := range gameState.Entities {
+	for _, element := range g.Entities {
 		if element.Type == Card {
 			//fmt.Printf("%+v", element)
 			cards = append(cards, element)
@@ -52,11 +58,33 @@ func GetAllCards(gameState *GameState) []Entity {
 	return cards
 }
 
-func CreatePlayerEntity(gameState *GameState) uuid.UUID {
+func (g *GameState) PrintCardsInZone(zone Zone) {
+
+	for _, element := range g.Entities {
+		fmt.Println("found element")
+		if e, ok := element.Tags[Place]; ok && e == int(zone) {
+			fmt.Printf("%+v", element)
+		}
+	}
+}
+
+func (g *GameState) CreatePlayerEntity() uuid.UUID {
 	p := NewEntity(Player, uuid.NewV4())
-	gameState.Entities[p.ID] = p
+	g.Entities[p.ID] = p
+	g.MainDecks[p.ID] = NewCardCollection(HiddenZone)
+	g.Hands[p.ID] = NewCardCollection(PrivateZone)
 	return p.ID
 }
+
+func (g *GameState) ShuffleDeck(id uuid.UUID) {
+
+	if deck, ok := g.MainDecks[id]; ok {
+		deck.Shuffle()
+	}
+
+}
+
+func (g *GameState) Draw(id uuid.UUID, amount int) {}
 
 func ApplyAction(action Action, game *GameState) {
 	if entity, ok := game.Entities[action.TargetEntity]; ok {

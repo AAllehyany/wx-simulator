@@ -7,5 +7,4 @@ type EntityType int
 const (
 	Card EntityType = iota
 	Player
-	Zone
 )

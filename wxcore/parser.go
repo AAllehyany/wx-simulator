@@ -9,7 +9,7 @@ import (
 func CardToEntityParser(cards []*CardData, gameState *GameState, owner uuid.UUID) {
 
 	for _, v := range cards {
-		eid := CreateEntity(gameState, Card, owner)
+		eid := gameState.CreateEntity(Card, owner)
 		PraseCard(gameState, eid, v)
 	}
 }
@@ -18,13 +18,12 @@ func PraseCard(gameState *GameState, eid uuid.UUID, card *CardData) {
 
 	cardType := getCardType(card.Type)
 	cardZone := getCardZone(card.Type)
-	UpdateEntity(gameState, eid, cardType, 1)
-	UpdateEntity(gameState, eid, Power, card.Power)
-	UpdateEntity(gameState, eid, Cost, card.Cost)
-	UpdateEntity(gameState, eid, Level, card.Level)
-	UpdateEntity(gameState, eid, Limit, card.Limit)
-	UpdateEntity(gameState, eid, cardZone, 1)
-
+	gameState.UpdateEntity(eid, cardType, 1)
+	gameState.UpdateEntity(eid, Power, card.Power)
+	gameState.UpdateEntity(eid, Cost, card.Cost)
+	gameState.UpdateEntity(eid, Level, card.Level)
+	gameState.UpdateEntity(eid, Limit, card.Limit)
+	gameState.UpdateEntity(eid, Place, int(cardZone))
 }
 
 func getCardType(t string) EntityTag {
@@ -46,7 +45,7 @@ func getCardType(t string) EntityTag {
 	return Signi
 }
 
-func getCardZone(t string) EntityTag {
+func getCardZone(t string) Zone {
 	switch ct := strings.ToLower(t); ct {
 	case "lrig", "arts":
 		return LrigDeck

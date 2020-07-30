@@ -19,14 +19,7 @@ const (
 	Black
 	Colorless
 
-	Hand
-	MainDeck
-	Trash
-	LrigDeck
-	LrigTrash
-	LrigZone
-	Field
-	Ener
+	Place
 
 	Player1
 	Player2
@@ -53,4 +46,6 @@ const (
 	CurrentTurn
 	TurnsLeft
 	NextTurn
+
+	Order
 )
